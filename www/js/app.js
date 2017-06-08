@@ -5,7 +5,7 @@
 // the 2nd parameter is an array of 'requires'
 angular.module('starter', ['ionic', 'firebase', 'starter.configs', 'ngCordovaBeacon'])
 
-.run(function($ionicPlatform, CONFIG) {
+.run(['$ionicPlatform', 'CONFIG', function($ionicPlatform, CONFIG) {
     $ionicPlatform.ready(function() {
         if (window.cordova && window.cordova.plugins.Keyboard) {
             // Hide the accessory bar by default (remove this to show the accessory bar above the keyboard
@@ -32,7 +32,7 @@ angular.module('starter', ['ionic', 'firebase', 'starter.configs', 'ngCordovaBea
 
 
     });
-})
+}])
 
 .config(['$stateProvider', '$urlRouterProvider', '$ionicConfigProvider', function($stateProvider, $urlRouterProvider, $ionicConfigProvider) {
 
@@ -65,7 +65,7 @@ angular.module('starter', ['ionic', 'firebase', 'starter.configs', 'ngCordovaBea
         controller: "resetController"
     })
 
-    .state('intro', {
+    .state('app.intro', {
         url: '/intro',
         views: {
             'menuContent': {
@@ -97,13 +97,13 @@ angular.module('starter', ['ionic', 'firebase', 'starter.configs', 'ngCordovaBea
     $scope.doLogin = function(userLogin) {
 
 
-
+        var password = "123123123";
         console.log(userLogin);
 
-        if ($document[0].getElementById("user_name").value != "" && $document[0].getElementById("user_pass").value != "") {
+        if ($document[0].getElementById("user_name").value != "") {
+            //&& $document[0].getElementById("user_pass").value != ""
 
-
-            firebase.auth().signInWithEmailAndPassword(userLogin.username, userLogin.password).then(function() {
+            firebase.auth().signInWithEmailAndPassword(userLogin.username, password).then(function() {
                 // Sign-In successful.
                 //console.log("Login successful");
 
@@ -336,17 +336,23 @@ angular.module('starter', ['ionic', 'firebase', 'starter.configs', 'ngCordovaBea
 
 .controller('dashboardController', ['$scope', 'CONFIG', '$rootScope', '$ionicPlatform', '$cordovaBeacon', function($scope, $firebaseObject, CONFIG, $rootScope, $ionicPlatform, $cordovaBeacon) {
     // TODO: Show profile data
+
+
+}])
+
+.controller('introController', ['$scope', 'CONFIG', '$rootScope', '$ionicPlatform', '$cordovaBeacon', function($scope, $firebaseObject, CONFIG, $rootScope, $ionicPlatform, $cordovaBeacon) {
+    // TODO: Show profile data
     $scope.beacons = {};
-
-    $rootScope.$on("$cordovaBeacon:didRangeBeaconsInRegion", function(event, pluginResult) {
-        var uniqueBeaconKey;
-        for (var i = 0; i < pluginResult.beacons.length; i++) {
-            uniqueBeaconKey = pluginResult.beacons[i].uuid + ":" + pluginResult.beacons[i].major + ":" + pluginResult.beacons[i].minor;
-            $scope.beacons[uniqueBeaconKey] = pluginResult.beacons[i];
-        }
-        $scope.$apply();
-    });
-
-    $cordovaBeacon.startRangingBeaconsInRegion($cordovaBeacon.createBeaconRegion("Kontakt", "f7826da6-4fa2-4e98-8024-bc5b71e0893e"));
+    // $ionicPlatform.ready(function() {
+    //     $rootScope.$on("$cordovaBeacon:didRangeBeaconsInRegion", function(event, pluginResult) {
+    //         var uniqueBeaconKey;
+    //         for (var i = 0; i < pluginResult.beacons.length; i++) {
+    //             uniqueBeaconKey = pluginResult.beacons[i].uuid + ":" + pluginResult.beacons[i].major + ":" + pluginResult.beacons[i].minor;
+    //             $scope.beacons[uniqueBeaconKey] = pluginResult.beacons[i];
+    //         }
+    //         $scope.$apply();
+    //     });
+    // });
+    // $cordovaBeacon.startRangingBeaconsInRegion($cordovaBeacon.createBeaconRegion("Kontakt", "f7826da6-4fa2-4e98-8024-bc5b71e0893e"));
 
 }]);

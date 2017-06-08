@@ -5,8 +5,7 @@
             </ion-nav-back-button>
 
             <ion-nav-buttons side="left">
-                <button class="button button-icon button-clear ion-navicon" menu-toggle="left">
-        </button>
+                <button class="button button-icon button-clear ion-navicon" menu-toggle="left"></button>
             </ion-nav-buttons>
         </ion-nav-bar>
         <ion-nav-view name="menuContent"></ion-nav-view>
@@ -17,8 +16,6 @@
       <h1 class="title">Left</h1>
     </ion-header-bar>-->
         <ion-content>
-
-
             <img src="" id="photo_user" height="100" width="100" />
             <ion-list>
                 <ion-item menu-close ng-click="doLogout()">
@@ -27,8 +24,8 @@
                 <ion-item menu-close href="#/app/search">
                     Search
                 </ion-item>
-                <ion-item menu-close href="#/app/browse">
-                    Browse
+                <ion-item menu-close="left" href="#/app/intro">
+                    intro
                 </ion-item>
                 <ion-item menu-close href="#/app/about">
                     About

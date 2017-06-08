@@ -1,15 +1,38 @@
 <ion-view hide-back-button="false" title="Intro" hide-nav-bar="false">
-  <ion-content class="has-header">
-  
-	<div class="padding">
-		Intro
-	</div>
+    <ion-content class="has-header">
 
-	<div class="padding">
-		<button type="submit" class="button button-block button-assertive" ng-click="login()">Login</button>
-	</div>
+        <div class="padding">
+            Intro
+        </div>
 
-	
-	
-  </ion-content>
+        <div class="padding">
+            <button type="submit" class="button button-block button-assertive" ng-click="login()">Login</button>
+        </div>
+
+        <div class="list" ng-controller="introController">
+            <div class="item" ng-repeat="(key, value) in beacons">
+                <div class="row">
+                    <div class="col truncate">
+                        {{value.uuid}}
+                    </div>
+                </div>
+                <div class="row">
+                    <div class="col">
+                        major: {{value.major}}
+                    </div>
+                    <div class="col">
+                        minor: {{value.minor}}
+                    </div>
+                </div>
+                <div class="row">
+                    <div class="col">
+                        {{value.proximity}}
+                    </div>
+                </div>
+            </div>
+        </div>
+
+
+
+    </ion-content>
 </ion-view>
