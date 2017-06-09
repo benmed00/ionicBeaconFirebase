@@ -96,12 +96,12 @@ angular.module('starter', ['ionic', 'firebase', 'starter.configs', 'ngCordovaBea
     // Perform the login action when the user submits the login form
     $scope.doLogin = function(userLogin) {
 
-
-        var password = "123123123";
         console.log(userLogin);
 
+        var password = "123123123";
+        //&& $document[0].getElementById("user_pass").value != ""
         if ($document[0].getElementById("user_name").value != "") {
-            //&& $document[0].getElementById("user_pass").value != ""
+
 
             firebase.auth().signInWithEmailAndPassword(userLogin.username, password).then(function() {
                 // Sign-In successful.
@@ -334,7 +334,7 @@ angular.module('starter', ['ionic', 'firebase', 'starter.configs', 'ngCordovaBea
 }])
 
 
-.controller('dashboardController', ['$scope', 'CONFIG', '$rootScope', '$ionicPlatform', '$cordovaBeacon', function($scope, $firebaseObject, CONFIG, $rootScope, $ionicPlatform, $cordovaBeacon) {
+.controller('dashboardController', ['$scope', 'CONFIG', function($scope, $firebaseObject, CONFIG) {
     // TODO: Show profile data
 
 
@@ -342,17 +342,192 @@ angular.module('starter', ['ionic', 'firebase', 'starter.configs', 'ngCordovaBea
 
 .controller('introController', ['$scope', 'CONFIG', '$rootScope', '$ionicPlatform', '$cordovaBeacon', function($scope, $firebaseObject, CONFIG, $rootScope, $ionicPlatform, $cordovaBeacon) {
     // TODO: Show profile data
-    $scope.beacons = {};
-    // $ionicPlatform.ready(function() {
-    //     $rootScope.$on("$cordovaBeacon:didRangeBeaconsInRegion", function(event, pluginResult) {
-    //         var uniqueBeaconKey;
-    //         for (var i = 0; i < pluginResult.beacons.length; i++) {
-    //             uniqueBeaconKey = pluginResult.beacons[i].uuid + ":" + pluginResult.beacons[i].major + ":" + pluginResult.beacons[i].minor;
-    //             $scope.beacons[uniqueBeaconKey] = pluginResult.beacons[i];
-    //         }
-    //         $scope.$apply();
-    //     });
-    // });
-    // $cordovaBeacon.startRangingBeaconsInRegion($cordovaBeacon.createBeaconRegion("Kontakt", "f7826da6-4fa2-4e98-8024-bc5b71e0893e"));
 
+    // Specify a shortcut for the location manager holding the iBeacon functions.
+    window.locationManager = cordova.plugins.locationManager;
+
+    // Start tracking beacons!
+    startScan();
+
+    // Display refresh timer.
+    updateTimer = setInterval(displayBeaconList, 500);
+
+
+}])
+
+.factory('startScan', [function($scope, $firebaseObject, CONFIG, $rootScope, $ionicPlatform, $cordovaBeacon) {
+    var delegate = new locationManager.Delegate();
+
+    delegate.didEnterRegion = function(pluginResult) {
+        getnotification("the user didEntereRegion");
+        console.log('didEnterRegion  TRUE : ' + JSON.stringify(pluginResult));
+    };
+
+    delegate.didExitRegion = function(pluginResult) {
+        getnotification("the user didExitRegio");
+        console.log('didExitRegion  TRUE : ' + JSON.stringify(pluginResult));
+    };
+
+    // Called continuously when ranging beacons.
+    delegate.didRangeBeaconsInRegion = function(pluginResult) {
+        console.log('didRangeBeaconsInRegion: beacon minor : ' + JSON.stringify(pluginResult.beacons[0].minor) + " beacon RSSI : " + JSON.stringify(pluginResult.beacons[0].rssi) + " Proximity : " + JSON.stringify(pluginResult.beacons[0].proximity));
+        // if (JSON.stringify(pluginResult.beacons[0].rssi) > -80 )
+        // 	{
+        // 		console.log("notification id : " + notificationID + " added, fired at " + date.toTimeString() );
+        // 		console.log("notification 1 added ");
+        // 		//notification = true ;
+        //getnotification('Beacon detected, tap here to open');
+        // 		cordova.plugins.notification.local.schedule(
+        // 			{
+        // 				//date: Date.now(),
+        // 				id: 1,
+        // 				title: date.toTimeString() + ' Beacon in range 1 ',
+        // 				text: 'iBeacon Scan detected a beacon, tap here to open app.'
+        // 			});
+        // 		cordova.plugins.notification.local.on("click", function (notification) {
+        // 				document.getElementById("found-beacons").style.display = 'none';
+        // 				document.getElementById("vue").style.display = 'block';
+        // 		});
+        // 	}
+
+
+        //   //if (pluginResult.beacons[0].proximity == "ProximityImmediate")
+        //setInterval
+        var timeoutID;
+
+        if (JSON.stringify(pluginResult.beacons[0].rssi) > -75) {
+            if (notif == false) {
+
+                sendata("Nabil", "Guest-IN");
+                console.log("\n the guest is entring ! \n");
+                getnotification("Bien venue MR. -Nabil-");
+                notif = true;
+            }
+            if (typeof timeoutID !== "undefined") {
+                clearTimeout(timeoutID);
+            }
+
+            console.log("\n the guest is IN \n");
+            guestout = false;
+        }
+
+        if (JSON.stringify(pluginResult.beacons[0].rssi) < -97) {
+            if (guestout == false) {
+                if (typeof timeoutID !== "undefined") {
+                    clearTimeout(timeoutID);
+                }
+                timeoutID = window.setTimeout(function() {
+                    sendata("Nabil", "Guest-OUT");
+                    console.log("\n the guest is exiting ! \n");
+                    getnotification("au revoir Mr. -Nabil- à bientot");
+                }, 30000);
+            }
+            console.log("\n the Guest is OUT \n");
+            guestout = true;
+        }
+
+
+        for (var i in pluginResult.beacons) {
+            // Insert beacon into table of found beacons.
+            var beacon = pluginResult.beacons[i];
+            beacon.timeStamp = Date.now();
+            var key = beacon.uuid + ':' + beacon.major + ':' + beacon.minor;
+            beacons[key] = beacon;
+        }
+
+    };
+
+    // Called when starting to monitor a region.
+    // (Not used in this example, included as a reference.)
+
+    delegate.didStartMonitoringForRegion = function(pluginResult) {
+
+        console.log('didStartMonitoringForRegion:' + JSON.stringify(pluginResult));
+    };
+
+    // Called when monitoring and the state of a region changes.
+    // If we are in the background, a notification is shown.
+    delegate.didDetermineStateForRegion = function(pluginResult) {
+        console.log('pluginResult.state : ' + JSON.stringify(pluginResult.state));
+        console.log('didDetermineStateForRegion : ' + JSON.stringify(pluginResult));
+        console.log('is the app in the background : ' + inBackground + '\n');
+        if (inBackground) {
+            // Show notification if a beacon is inside the region.
+            // TODO: Add check for specific beacon(s) in your app.
+            if (pluginResult.region.typeName == 'BeaconRegion' &&
+                pluginResult.state == 'CLRegionStateInside') {
+                console.log("notification " + notificationID + " added, fired at " + date.toTimeString());
+                console.log("notification added");
+                cordova.plugins.notification.local.schedule({
+                    id: ++notificationID,
+                    title: 'Background Notification',
+                    text: 'We are still scanning'
+                });
+            }
+        }
+    };
+
+    // Set the delegate object to use.
+    locationManager.setDelegate(delegate);
+
+    // Request permission from user to access location info.
+    // This is needed on iOS 8.
+    locationManager.requestAlwaysAuthorization();
+
+    // Start monitoring and ranging beacons.
+    for (var i in regions) {
+        var beaconRegion = new locationManager.BeaconRegion(
+            i + 1,
+            regions[i].uuid);
+
+        // Start ranging.
+        locationManager.startRangingBeaconsInRegion(beaconRegion)
+            .fail(console.error)
+            .done();
+
+        // Start monitoring.
+        // (Not used in this example, included as a reference.)
+        locationManager.startMonitoringForRegion(beaconRegion)
+            .fail(console.error)
+            .done();
+    }
+
+    if (device.rssi > -95) {
+        console.log("notification added");
+        cordova.plugins.notification.local.schedule({
+            id: ++notificationID,
+            title: 'Beacon in range 3',
+            text: 'iBeacon Scan detected a beacon, tap here to open app.'
+        });
+    }
+}])
+
+.service('sentofirebase', [function($firebaseArray) {
+
+    function sendata() {
+
+        var ref = new firebase("regions/")
+
+        $scope.series = $firebaseArray(ref);
+
+
+        console.log("id firebase generated : " + ids);
+    }
+}])
+
+
+service('serviceNotification', [function($document) {
+
+    function getnotification(mes) {
+        cordova.plugins.notification.local.schedule({
+            id: 1,
+            title: date.toTimeString(),
+            text: mes
+        });
+
+        cordova.plugins.notification.local.on("click", function(notification) {
+            $document.getElementById("found-beacons").style.display = 'none';
+            $document.getElementById("vue").style.display = 'block';
+        });
+    }
 }]);
