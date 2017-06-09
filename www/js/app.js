@@ -3,7 +3,7 @@
 // angular.module is a global place for creating, registering and retrieving Angular modules
 // 'starter' is the name of this angular module example (also set in a <body> attribute in index.html)
 // the 2nd parameter is an array of 'requires'
-angular.module('starter', ['ionic', 'firebase', 'starter.configs', 'ngCordovaBeacon'])
+angular.module('starter', ['ngCordova', 'ionic', 'firebase', 'starter.configs', 'ngCordovaBeacon'])
 
 .run(['$ionicPlatform', 'CONFIG', function($ionicPlatform, CONFIG) {
     $ionicPlatform.ready(function() {
@@ -340,19 +340,50 @@ angular.module('starter', ['ionic', 'firebase', 'starter.configs', 'ngCordovaBea
 
 }])
 
-.controller('introController', ['$scope', 'CONFIG', '$rootScope', '$ionicPlatform', '$cordovaBeacon', function($scope, $firebaseObject, CONFIG, $rootScope, $ionicPlatform, $cordovaBeacon) {
+.controller('introController', ['$scope', '$ionicPlatform', '$cordovaBeacon', '$rootScope', 'CONFIG', function($scope, $ionicPlatform, $cordovaBeacon, $rootScope, CONFIG, ionicPlatform, cordovaBeacon, ngCordova) {
     // TODO: Show profile data
+    // '$rootScope', '$ionicPlatform', '$cordovaBeacon'
+    $scope.beacons = {};
 
-    // Specify a shortcut for the location manager holding the iBeacon functions.
-    window.locationManager = cordova.plugins.locationManager;
+    $ionicPlatform.ready(function() {
 
-    // Start tracking beacons!
-    startScan();
+        $cordovaBeacon.requestWhenInUseAuthorization();
 
-    // Display refresh timer.
-    updateTimer = setInterval(displayBeaconList, 500);
+        $rootScope.$on("$cordovaBeacon:didRangeBeaconsInRegion", function(event, pluginResult) {
+            var uniqueBeaconKey;
+            for (var i = 0; i < pluginResult.beacons.length; i++) {
+                uniqueBeaconKey = pluginResult.beacons[i].uuid + ":" + pluginResult.beacons[i].major + ":" + pluginResult.beacons[i].minor;
+                $scope.beacons[uniqueBeaconKey] = pluginResult.beacons[i];
+            }
+            $scope.$apply();
+        });
+
+        $cordovaBeacon.startRangingBeaconsInRegion($cordovaBeacon.createBeaconRegion("kontakt", "f7826da6-4fa2-4e98-8024-bc5b71e0893e"));
+
+    });
 
 
+}])
+
+.factory('scanIbeacon', [function($scope, $rootScope, $ionicPlatform, $cordovaBeacon) {
+    $scope.beacons = {};
+
+    $ionicPlatform.ready(function() {
+
+        $cordovaBeacon.requestWhenInUseAuthorization();
+
+        $rootScope.$on("$cordovaBeacon:didRangeBeaconsInRegion", function(event, pluginResult) {
+            var uniqueBeaconKey;
+            for (var i = 0; i < pluginResult.beacons.length; i++) {
+                uniqueBeaconKey = pluginResult.beacons[i].uuid + ":" + pluginResult.beacons[i].major + ":" + pluginResult.beacons[i].minor;
+                $scope.beacons[uniqueBeaconKey] = pluginResult.beacons[i];
+            }
+            $scope.$apply();
+        });
+
+        $cordovaBeacon.startRangingBeaconsInRegion($cordovaBeacon.createBeaconRegion("kontakt", "f7826da6-4fa2-4e98-8024-bc5b71e0893e"));
+
+    });
 }])
 
 .factory('startScan', [function($scope, $firebaseObject, CONFIG, $rootScope, $ionicPlatform, $cordovaBeacon) {
@@ -515,8 +546,7 @@ angular.module('starter', ['ionic', 'firebase', 'starter.configs', 'ngCordovaBea
     }
 }])
 
-
-service('serviceNotification', [function($document) {
+.service('serviceNotification', [function($document) {
 
     function getnotification(mes) {
         cordova.plugins.notification.local.schedule({

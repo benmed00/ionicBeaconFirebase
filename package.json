@@ -8,8 +8,10 @@
         "@ionic-native/ibeacon": "^3.12.1",
         "com.unarin.cordova.beacon": "git+https://github.com/petermetz/cordova-plugin-ibeacon.git",
         "cordova-android": "^6.2.3",
+        "cordova-plugin-compat": "^1.0.0",
         "cordova-plugin-console": "^1.0.5",
         "cordova-plugin-device": "^1.1.4",
+        "cordova-plugin-file": "^4.3.3",
         "cordova-plugin-ibeacon": "^3.4.0",
         "cordova-plugin-splashscreen": "^4.0.3",
         "cordova-plugin-statusbar": "^2.2.1",
@@ -38,7 +40,8 @@
             "cordova-plugin-splashscreen": {},
             "cordova-plugin-statusbar": {},
             "cordova-plugin-whitelist": {},
-            "ionic-plugin-keyboard": {}
+            "ionic-plugin-keyboard": {},
+            "cordova-plugin-file": {}
         },
         "platforms": [
             "android"

@@ -10,6 +10,7 @@ ionic platform add ios
 ionic platform add android
 
 
+
     <
     script src = "js/ng-cordova-beacon.min.js" > < /script>
 
@@ -47,7 +48,7 @@ angular.module('starter', ['ionic', 'ngCordovaBeacon'])
             $scope.$apply();
         });
 
-        $cordovaBeacon.startRangingBeaconsInRegion($cordovaBeacon.createBeaconRegion("estimote", "b9407f30-f5f8-466e-aff9-25556b57fe6d"));
+        $cordovaBeacon.startRangingBeaconsInRegion($cordovaBeacon.createBeaconRegion("kontakt", "f7826da6-4fa2-4e98-8024-bc5b71e0893e"));
 
     });
 });
@@ -90,3 +91,12 @@ ng - repeat = "(key, value) in beacons" >
     /div> <
     /div> <
     /ion-content>
+
+
+
+
+.truncate {
+    overflow: hidden;
+    text - overflow: ellipsis;
+    white - space: nowrap;
+}
