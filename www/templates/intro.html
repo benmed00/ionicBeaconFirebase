@@ -1,6 +1,8 @@
 <ion-view hide-back-button="false" title="Intro" hide-nav-bar="false">
-    <ion-content class="has-header">
-
+    <ion-content class="has-header" ng-controller="introController">
+        <pre>
+          rssi : {{ rssi }}
+        </pre>
         <div class="padding">
             Intro
         </div>
@@ -8,6 +10,14 @@
         <div class="padding">
             <button type="submit" class="button button-block button-assertive" ng-click="login()">Login</button>
         </div>
+
+        <h1>iBeacon Scan</h1>
+        <p id="warning">To detect iBeacons you will have to add the 128bit UUID's you are looking for to the regions array in app.js of the iBeacon example.
+        </p>
+        <ul id="found-beacons" class="dynamic"></ul>
+        <pre>
+          {{ rssi }}
+        </pre>
 
         <div class="list" ng-controller="introController">
             <div class="item" ng-repeat="(key, value) in beacons">
@@ -27,6 +37,11 @@
                 <div class="row">
                     <div class="col">
                         {{value.proximity}}
+                    </div>
+                </div>
+                <div class="row">
+                    <div class="col">
+                        {{value.rssi}}
                     </div>
                 </div>
             </div>

@@ -1,1 +1,1 @@
-{"plugins":["com.unarin.cordova.beacon","cordova-plugin-console","cordova-plugin-device","cordova-plugin-splashscreen","cordova-plugin-statusbar","cordova-plugin-whitelist","ionic-plugin-keyboard"]}
+{"plugins":["com.unarin.cordova.beacon","cordova-plugin-console","cordova-plugin-device","cordova-plugin-splashscreen","cordova-plugin-statusbar","cordova-plugin-whitelist","ionic-plugin-keyboard","cordova-plugin-file","cordova-plugin-compat","de.appplant.cordova.plugin.local-notification","cordova-plugin-app-event"]}

@@ -341,27 +341,106 @@ angular.module('starter', ['ngCordova', 'ionic', 'firebase', 'starter.configs', 
 }])
 
 .controller('introController', ['$scope', '$ionicPlatform', '$cordovaBeacon', '$rootScope', 'CONFIG', function($scope, $ionicPlatform, $cordovaBeacon, $rootScope, CONFIG, ionicPlatform, cordovaBeacon, ngCordova) {
-    // TODO: Show profile data
-    // '$rootScope', '$ionicPlatform', '$cordovaBeacon'
-    $scope.beacons = {};
 
-    $ionicPlatform.ready(function() {
+    var logToDom = function(message) {
+        var e = document.createElement('label');
+        e.innerText = message;
 
-        $cordovaBeacon.requestWhenInUseAuthorization();
+        var br = document.createElement('br');
+        var br2 = document.createElement('br');
+        document.body.appendChild(e);
+        document.body.appendChild(br);
+        document.body.appendChild(br2);
 
-        $rootScope.$on("$cordovaBeacon:didRangeBeaconsInRegion", function(event, pluginResult) {
-            var uniqueBeaconKey;
-            for (var i = 0; i < pluginResult.beacons.length; i++) {
-                uniqueBeaconKey = pluginResult.beacons[i].uuid + ":" + pluginResult.beacons[i].major + ":" + pluginResult.beacons[i].minor;
-                $scope.beacons[uniqueBeaconKey] = pluginResult.beacons[i];
+        window.scrollTo(0, window.document.height);
+    };
+
+    var delegate = new cordova.plugins.locationManager.Delegate();
+
+    delegate.didDetermineStateForRegion = function(pluginResult) {
+
+        logToDom('[DOM] didDetermineStateForRegion: ' + JSON.stringify(pluginResult));
+
+        cordova.plugins.locationManager.appendToDeviceLog('[DOM] didDetermineStateForRegion: ' +
+            JSON.stringify(pluginResult));
+    };
+
+    delegate.didStartMonitoringForRegion = function(pluginResult) {
+        console.log('didStartMonitoringForRegion:', pluginResult);
+
+        logToDom('didStartMonitoringForRegion:' + JSON.stringify(pluginResult));
+    };
+
+    delegate.didRangeBeaconsInRegion = function(pluginResult) {
+
+
+        console.log('didRangeBeaconsInRegion:', pluginResult);
+        //alert(JSON.stringify(pluginResult));
+        $scope.rssi = JSON.stringify(pluginResult.beacons[0].rssi);
+
+        if (JSON.stringify(pluginResult.beacons[0].rssi) > -100) {
+            cordova.plugins.notification.local.schedule({
+                id: 1,
+                title: 'Vous Etes dans la cuisine',
+                text: 'tournez à droite pour aller au sallon'
+            });
+
+            //update the value
+            var db = firebase.database();
+            db.ref("Regions/region1/nbr").set("news-value");
+
+            // on recupaire la valuer enterieure
+            function recupaire() {
+                const ref = firebase.database().ref('Regions/region1/nbr');
+                ref.on("value", function(snapshot) {
+                    $scope.nbrinit = snapshot.val();
+                    console.log($scope.nbr);
+                })
             }
-            $scope.$apply();
-        });
 
-        $cordovaBeacon.startRangingBeaconsInRegion($cordovaBeacon.createBeaconRegion("kontakt", "f7826da6-4fa2-4e98-8024-bc5b71e0893e"));
+            //on incremante par un
+            function incremente(params) {
+                const refregion1 = firebase.database().ref('Regions/region1/');
+                $scope.region1 = $firebaseArray(refregion1);
+                $scope.region1.$add({
+                    nbr: $scope.nbrinit + 1
+                });
 
-    });
+            }
 
+
+
+        }
+        if (JSON.stringify(pluginResult.beacons[0].rssi) < -100) {
+            cordova.plugins.notification.local.schedule({
+                id: 1,
+                title: 'Scan en cours ',
+                text: 'vous etes HORS Zone'
+            });
+        }
+
+
+        logToDom('[DOM] didRangeBeaconsInRegion: ' + JSON.stringify(pluginResult));
+    };
+
+    //var keybeacon :"f7826da6-4fa2-4e98-8024-bc5b71e0893e:22792:14618";
+    // "minor":"14618","major":"22792"
+
+    var uuid = 'f7826da6-4fa2-4e98-8024-bc5b71e0893e';
+    var identifier = 'Cuisine';
+    var minor = 14618;
+    var major = 22792;
+    var beaconRegion = new cordova.plugins.locationManager.BeaconRegion(identifier, uuid, major, minor);
+
+    cordova.plugins.locationManager.setDelegate(delegate);
+
+    // required in iOS 8+
+    cordova.plugins.locationManager.requestWhenInUseAuthorization();
+    // or cordova.plugins.locationManager.requestAlwaysAuthorization()
+
+    cordova.plugins.locationManager.startRangingBeaconsInRegion(beaconRegion)
+        .fail(function(e) { console.error(e); })
+        .done();
 
 }])
 
@@ -377,6 +456,26 @@ angular.module('starter', ['ngCordova', 'ionic', 'firebase', 'starter.configs', 
             for (var i = 0; i < pluginResult.beacons.length; i++) {
                 uniqueBeaconKey = pluginResult.beacons[i].uuid + ":" + pluginResult.beacons[i].major + ":" + pluginResult.beacons[i].minor;
                 $scope.beacons[uniqueBeaconKey] = pluginResult.beacons[i];
+
+
+                if (pluginResult.beacons[i].rssi < -90) {
+
+                    if (pluginResult.beacons[i].major == 1600) {
+                        var ref = firebase.database().ref("regions/regon1");
+                        // get nbr--> region1 and increment it by 1
+                        // regions
+                        //      |-> region1
+                        //              |-> nbr
+                    }
+
+                    if (pluginResult.beacons[i].major == 1400) {
+                        var ref = firebase.database().ref("regions/regon2");
+                        // get nbr--> region2 and increment it by 1
+                    }
+                }
+
+
+
             }
             $scope.$apply();
         });
@@ -387,7 +486,37 @@ angular.module('starter', ['ngCordova', 'ionic', 'firebase', 'starter.configs', 
 }])
 
 .factory('startScan', [function($scope, $firebaseObject, CONFIG, $rootScope, $ionicPlatform, $cordovaBeacon) {
-    var delegate = new locationManager.Delegate();
+
+    // Specify your beacon 128bit UUIDs here.
+    var regions = [
+        // Estimote Beacon factory UUID.
+        { uuid: 'f7826da6-4fa2-4e98-8024-bc5b71e0893e' }
+        // Sample UUIDs for beacons in our lab.
+
+        // Dialog Semiconductor.
+    ];
+    //var keybeacon :"f7826da6-4fa2-4e98-8024-bc5b71e0893e:22792:14618";
+    // "minor":"14618","major":"22792"
+
+    // Background detection.
+    var notificationID = 0;
+    var inBackground = false;
+    var date = new Date();
+    document.addEventListener('pause', function() { inBackground = true });
+    document.addEventListener('resume', function() { inBackground = false });
+
+    // Dictionary of beacons.
+    var beacons = {};
+
+    // Timer that displays list of beacons.
+    var updateTimer = null;
+
+    var notification = false;
+    var sendMessage = false;
+    var message = "";
+    var username = "";
+
+    var delegate = new cordova.plugins.locationManager.Delegate();
 
     delegate.didEnterRegion = function(pluginResult) {
         getnotification("the user didEntereRegion");
@@ -535,15 +664,33 @@ angular.module('starter', ['ngCordova', 'ionic', 'firebase', 'starter.configs', 
 
 .service('sentofirebase', [function($firebaseArray) {
 
-    function sendata() {
-
-        var ref = new firebase("regions/")
-
+    function sendata(region) {
+        var newnbr = previeusNbr + 1
+        var ref = new firebase.database().ref("regions/" + region);
         $scope.series = $firebaseArray(ref);
-
+        $scope.series.$add({
+            nbr: newNbr
+        })
 
         console.log("id firebase generated : " + ids);
     }
+
+    function getData() {
+
+
+    }
+
+    function sendataref(region) {
+        var ids = firebase.database().ref().child('messages').push().key;
+        firebase.database().ref('messages/' + ids).set({
+
+            username: user.displayName,
+            date: date.toTimeString(),
+            message: message
+        });
+    }
+
+    console.log("id firebase generer" + ids);
 }])
 
 .service('serviceNotification', [function($document) {
