@@ -7,7 +7,7 @@
         "@ionic-native/core": "^3.12.1",
         "@ionic-native/ibeacon": "^3.12.1",
         "com.unarin.cordova.beacon": "git+https://github.com/petermetz/cordova-plugin-ibeacon.git",
-        "cordova-android": "^6.2.3",
+        "cordova-android": "^9.0.0",
         "cordova-plugin-app-event": "file:node_modules\\cordova-plugin-app-event",
         "cordova-plugin-compat": "^1.0.0",
         "cordova-plugin-console": "^1.0.5",
