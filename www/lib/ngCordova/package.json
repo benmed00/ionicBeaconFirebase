@@ -38,7 +38,7 @@
   "dependencies": {
     "conventional-changelog": "0.0.11",
     "fs": "0.0.2",
-    "gulp-git": "^1.2.4",
+    "gulp-git": "^2.5.0",
     "q": "^1.1.2"
   }
 }
